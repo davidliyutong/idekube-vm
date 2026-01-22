@@ -41,7 +41,7 @@ qemu-system-aarch64 \
   -smp ${VM_CPU},sockets=1,cores=${VM_CPU},threads=1 \
   ${GRAPHICS_OPTS} \
   -serial mon:stdio \
-  -drive file=./assets/${DISTRO}-${ARCH}.diff.qcow2,format=qcow2,if=virtio,cache=writethrough \
+  -drive file=./assets/${DISTRO}-${ARCH}.qcow2,format=qcow2,if=virtio,cache=writethrough \
   -cdrom ./assets/cloud-init.iso \
   -netdev user,id=net0,hostfwd=tcp::10022-:22,hostfwd=tcp::8080-:80 \
   -device virtio-net-device,netdev=net0
