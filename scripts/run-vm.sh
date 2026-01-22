@@ -12,7 +12,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     ACCELERATOR=" -accel hvf "
     CPU_TYPE="host"
 elif [[ "$(uname)" == "Linux" ]]; then
-    if [[ -e /dev/kvm ]]; then
+    if [[ -e /dev/kvm ]] && (lsmod | grep -q kvm || [[ -d /sys/module/kvm ]]); then
         ACCELERATOR=" -accel kvm "
         CPU_TYPE="host"
     else
@@ -38,6 +38,15 @@ else
     GRAPHICS_OPTS="-device virtio-gpu-pci -display default,show-cursor=on -device qemu-xhci -device usb-kbd -device usb-tablet -device intel-hda -device hda-duplex"
 fi
 
+# Check if user network backend is available
+NETWORK_OPTS=""
+if qemu-system-aarch64 -netdev help 2>&1 | grep -q "user"; then
+    NETWORK_OPTS="-netdev user,id=net0,hostfwd=tcp::10022-:22,hostfwd=tcp::8080-:80 -device virtio-net-pci,netdev=net0,disable-modern=off,disable-legacy=on"
+else
+    echo "Warning: 'user' network backend not available, falling back to tap" >&2
+    NETWORK_OPTS="-netdev tap,id=net0 -device virtio-net-pci,netdev=net0,disable-modern=off,disable-legacy=on"
+fi
+
 # If cloud-localds exists, init the cloud-init drive
 if command -v cloud-localds >/dev/null 2>&1; then
     echo "cloud-localds found, generating cloud-init.iso..."
@@ -58,5 +67,4 @@ qemu-system-aarch64 \
   -serial mon:stdio \
   -drive file=./assets/${DISTRO}-${ARCH}.qcow2,format=qcow2,if=virtio,cache=writethrough \
   -cdrom ./assets/cloud-init.iso \
-  -netdev user,id=net0,hostfwd=tcp::10022-:22,hostfwd=tcp::8080-:80 \
-  -device virtio-net-device,netdev=net0
+  ${NETWORK_OPTS}
