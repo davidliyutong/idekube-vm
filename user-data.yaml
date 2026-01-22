@@ -1,0 +1,19 @@
+#cloud-config
+users:
+  - name: idekube
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+
+chpasswd:
+  list: |
+    idekube:idekube
+  expire: False
+
+# Configure network to use DHCP
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+      dhcp6: false
