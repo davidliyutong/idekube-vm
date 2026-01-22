@@ -8,7 +8,7 @@ RUN apt-get update && \
   apt-get install -y \
     build-essential \
     ninja-build \
-	meson \
+    meson \
     git \
     curl \
     autoconf \
@@ -25,8 +25,7 @@ RUN apt-get update && \
     libusb-1.0 \
     libslirp-dev \
     python3 \
-    python3-pip \
-    cloud-image-utils && \
+    python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp/qemu

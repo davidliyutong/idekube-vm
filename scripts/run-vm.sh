@@ -17,7 +17,7 @@ elif [[ "$(uname)" == "Linux" ]]; then
         CPU_TYPE="host"
     else
         ACCELERATOR=""
-        echo "Warning: /dev/kvm not found, KVM acceleration disabled"
+        echo "Warning: /dev/kvm not found, KVM acceleration disabled" >&2
         if [[ "${ARCH}" == "arm64" ]]; then
             CPU_TYPE="cortex-a72"
         elif [[ "${ARCH}" == "x86_64" ]]; then
@@ -27,7 +27,7 @@ elif [[ "$(uname)" == "Linux" ]]; then
         fi
     fi
 else
-    echo "Unsupported OS for acceleration"
+    echo "Unsupported OS for acceleration" >&2
     exit 1
 fi
 
@@ -36,17 +36,6 @@ if [[ "${HEADLESS}" == "1" ]]; then
     GRAPHICS_OPTS="-nographic"
 else
     GRAPHICS_OPTS="-device virtio-gpu-pci -display default,show-cursor=on -device qemu-xhci -device usb-kbd -device usb-tablet -device intel-hda -device hda-duplex"
-fi
-
-# Probe for VFIO PCIe devices and prepare passthrough options
-VFIO_OPTS=""
-if ls /dev/vdav* 1> /dev/null 2>&1; then
-    for device in /dev/vdav*; do
-        if [[ -e "$device" ]]; then
-            VFIO_OPTS="${VFIO_OPTS} -device vfio-pci,host=${device}"
-            echo "Found VDAV device: $device, adding to passthrough"
-        fi
-    done
 fi
 
 # If cloud-localds exists, init the cloud-init drive
@@ -66,7 +55,6 @@ qemu-system-aarch64 \
   -m ${VM_MEMORY} \
   -smp ${VM_CPU},sockets=1,cores=${VM_CPU},threads=1 \
   ${GRAPHICS_OPTS} \
-  ${VFIO_OPTS} \
   -serial mon:stdio \
   -drive file=./assets/${DISTRO}-${ARCH}.qcow2,format=qcow2,if=virtio,cache=writethrough \
   -cdrom ./assets/cloud-init.iso \

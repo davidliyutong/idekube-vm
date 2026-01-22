@@ -19,5 +19,4 @@ apt-get install -y \
         libusb-1.0 \
         libslirp-dev \
         python3 \
-        python3-pip \
-        cloud-image-utils
+        python3-pip
