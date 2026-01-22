@@ -18,5 +18,7 @@ fi
 
 if [ ! -f "assets/${DISTRO}-${ARCH}.qcow2" ]; then
     echo "Creating the diff image"
-    qemu-img create -f qcow2 -o backing_file=assets/${DISTRO}-${ARCH}.img,backing_fmt=qcow2 assets/${DISTRO}-${ARCH}.qcow2 ${VDISK_SIZE}
+    pushd assets
+    qemu-img create -f qcow2 -o backing_file=${DISTRO}-${ARCH}.img,backing_fmt=qcow2 ${DISTRO}-${ARCH}.qcow2 ${VDISK_SIZE}
+    popd
 fi
